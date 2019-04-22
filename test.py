@@ -8,9 +8,9 @@ import shutil
 import os
 
 model = unet()
-model.load_weights('unet_ffg2.hdf5')
+model.load_weights('unet_ffg.hdf5')
 
-save_path = "data/ffg/test"
+save_path = "results"
 gt_path = "data/ffg/test/label"
 testGene = testGenerator("data/ffg/test")
 for img, img_path, img_shape, orig_img in testGene:

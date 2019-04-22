@@ -1,4 +1,4 @@
-from model import *
+from deep_unet import *
 from data import *
 
 #os.environ["CUDA_VISIBLE_DEVICES"] = "0"
@@ -13,7 +13,8 @@ data_gen_args = dict(rotation_range=0.2,
                     fill_mode='nearest')
 myGene = trainGenerator(2,'data/ffg/train','image','label',data_gen_args,save_to_dir = None)
 
-model = unet()
+model = deep_unet()
+model.summary()
 model_checkpoint = ModelCheckpoint('unet_ffg.hdf5', monitor='loss',verbose=1, save_best_only=True)
 model.fit_generator(myGene,steps_per_epoch=300,epochs=10,callbacks=[model_checkpoint])
 
