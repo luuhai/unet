@@ -1,3 +1,8 @@
 *.swp
+*.zip
+*.hdf5
 data/*
 results/
+.ipynb_checkpoints/
+__pycache__/
+
