@@ -49,10 +49,10 @@ def resizeImage(im):
     height, width = im.shape
     if height > width:
         diff = height - width
-        im = cv2.copyMakeBorder(im, 0, 0, diff // 2, diff - (diff // 2), cv2.BORDER_REFLECT)
+        im = cv2.copyMakeBorder(im, 0, 0, diff // 2, diff - (diff // 2), cv2.BORDER_CONSTANT, 0)
     elif width > height:
         diff = width - height
-        im = cv2.copyMakeBorder(im, diff // 2, diff - (diff // 2), 0, 0, cv2.BORDER_REFLECT)
+        im = cv2.copyMakeBorder(im, diff // 2, diff - (diff // 2), 0, 0, cv2.BORDER_CONSTANT, 0)
     return im
 
 
@@ -61,7 +61,7 @@ def resizeToOrigShape(im, orig_shape):
     if height > width:
         im = trans.resize(im, (height, height))
         diff = height - width
-        im = im[:, diff // 2: width - (diff - (diff // 2))]
+        im = im[:, diff // 2: height - (diff - (diff // 2))]
     elif width > height:
         im = trans.resize(im, (width, width))
         diff = width - height
@@ -81,6 +81,7 @@ def imageGenerator(data_path, img_folder, mask_folder, target_size):
 
         im = cv2.resize(im, target_size)
         im = np.expand_dims(im, axis=-1)
+
         mask = cv2.resize(mask, target_size)
         mask = np.expand_dims(mask, axis=-1)
 
@@ -98,8 +99,10 @@ def trainGenerator(batch_size,train_path,image_folder,mask_folder,aug_dict,image
     if you want to visualize the results of generator, set save_to_dir = "your path"
     '''
     imgs, masks = imageGenerator(train_path, image_folder, mask_folder, target_size)
-    image_datagen = ImageDataGenerator(**aug_dict)
-    mask_datagen = ImageDataGenerator(**aug_dict)
+
+    image_datagen = ImageDataGenerator(**{})
+    trans_datagen = ImageDataGenerator(**aug_dict)
+
     train_generator = image_datagen.flow(
         imgs,
         masks,
@@ -107,8 +110,15 @@ def trainGenerator(batch_size,train_path,image_folder,mask_folder,aug_dict,image
         save_to_dir = save_to_dir,
         save_prefix  = image_save_prefix,
         seed = seed)
+
     # train_generator = zip(image_generator, mask_generator)
     for (img, mask) in train_generator:
+        params = trans_datagen.get_random_transform(img.shape, seed=seed)
+
+        for i in range(batch_size):
+            img[i] = trans_datagen.apply_transform(img[i], params)
+            mask[i] = trans_datagen.apply_transform(mask[i], params)
+
         img, mask = adjustData(img,mask,flag_multi_class,num_class)
         yield (img,mask)
 
