@@ -1,5 +1,5 @@
 from deep_unet import *
-from data import *
+from data2 import *
 
 #os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
