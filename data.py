@@ -87,6 +87,8 @@ def imageGenerator(data_path, img_folder, mask_folder, target_size):
 
         imgs.append(im)
         masks.append(mask)
+        cv2.imwrite(os.path.join("data/hw2/test/image", img), im)
+        cv2.imwrite(os.path.join("data/hw2/test/label", img), mask)
     return (np.array(imgs), np.array(masks))
 
 
@@ -115,7 +117,7 @@ def trainGenerator(batch_size,train_path,image_folder,mask_folder,aug_dict,image
     for (img, mask) in train_generator:
         params = trans_datagen.get_random_transform(img.shape, seed=seed)
 
-        for i in range(batch_size):
+        for i in range(img.shape[0]):
             img[i] = trans_datagen.apply_transform(img[i], params)
             mask[i] = trans_datagen.apply_transform(mask[i], params)
 
