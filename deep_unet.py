@@ -8,6 +8,7 @@ from keras.layers import *
 from keras.optimizers import *
 from keras.callbacks import ModelCheckpoint, LearningRateScheduler
 from keras import backend as keras
+from keras.utils.vis_utils import plot_model
 
 
 def deep_unet(pretrained_weights = None,input_size = (512,512,1), n_features=64):
@@ -45,7 +46,7 @@ def deep_unet(pretrained_weights = None,input_size = (512,512,1), n_features=64)
     conv5 = LeakyReLU()(conv5)
     conv5 = Conv2D(n_features, 3, padding = 'same', kernel_initializer = 'he_normal')(conv5)
     plus5 = add([pool4, conv5])
-    conv5 = LeakyReLU()(conv5)
+    conv5 = LeakyReLU()(plus5)
     # drop4 = Dropout(0.5)(conv4)
     pool5 = MaxPooling2D(pool_size=(2, 2))(conv5)
 
@@ -53,7 +54,7 @@ def deep_unet(pretrained_weights = None,input_size = (512,512,1), n_features=64)
     conv6 = LeakyReLU()(conv6)
     conv6 = Conv2D(n_features, 3, padding = 'same', kernel_initializer = 'he_normal')(conv6)
     plus6 = add([pool5, conv6])
-    conv6 = LeakyReLU()(conv6)
+    conv6 = LeakyReLU()(plus6)
     # drop4 = Dropout(0.5)(conv4)
     pool6 = MaxPooling2D(pool_size=(2, 2))(conv6)
 
@@ -110,7 +111,7 @@ def deep_unet(pretrained_weights = None,input_size = (512,512,1), n_features=64)
     # conv12 = LeakyReLU()(conv12)
 
     up13 = UpSampling2D(size = (2,2))(plus12)
-    merge13 = concatenate([conv1,up13], axis = 3)
+    merge13 = concatenate([plus1,up13], axis = 3)
     conv13 = Conv2D(2*n_features, 3, padding = 'same', kernel_initializer = 'he_normal')(merge13)
     conv13 = LeakyReLU()(conv13)
     conv13 = Conv2D(n_features, 3, padding = 'same', kernel_initializer = 'he_normal')(conv13)
@@ -119,11 +120,12 @@ def deep_unet(pretrained_weights = None,input_size = (512,512,1), n_features=64)
     # conv13 = Conv2D(n_features, 3, padding = 'same', kernel_initializer = 'he_normal')(conv13)
     # conv13 = LeakyReLU()(conv13)
 
-    conv14 = Conv2D(2, 3, padding = 'same', kernel_initializer = 'he_normal')(conv13)
+    conv14 = Conv2D(2, 3, padding = 'same', kernel_initializer = 'he_normal')(plus13)
     conv14 = LeakyReLU()(conv14)
     conv14 = Conv2D(1, 1, activation = 'sigmoid')(conv14)
 
     model = Model(input = inputs, output = conv14)
+    plot_model(model, to_file='model_plot.png', show_shapes=True, show_layer_names=True)
 
     model.compile(optimizer = Adam(lr = 1e-5, decay = 1e-7), loss = 'binary_crossentropy', metrics = ['accuracy'])
 
