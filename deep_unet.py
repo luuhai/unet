@@ -125,7 +125,7 @@ def deep_unet(pretrained_weights = None,input_size = (512,512,1), n_features=64)
     conv14 = Conv2D(1, 1, activation = 'sigmoid')(conv14)
 
     model = Model(input = inputs, output = conv14)
-    plot_model(model, to_file='model_plot.png', show_shapes=True, show_layer_names=True)
+    # plot_model(model, to_file='model_plot.png', show_shapes=True, show_layer_names=True)
 
     model.compile(optimizer = Adam(lr = 1e-5, decay = 1e-7), loss = 'binary_crossentropy', metrics = ['accuracy'])
 
