@@ -13,6 +13,9 @@ from keras.utils.vis_utils import plot_model
 
 def deep_unet(pretrained_weights = None,input_size = (512,512,1), n_features=64):
     inputs = Input(input_size)
+    inputs = Conv2D(1, 1, padding = 'same', kernel_initializer = 'he_normal')(inputs)
+    inputs = ReLU()(inputs)
+
     conv1 = Conv2D(2*n_features, 3, padding = 'same', kernel_initializer = 'he_normal')(inputs)
     conv1 = LeakyReLU()(conv1)
     conv1 = Conv2D(n_features, 3, padding = 'same', kernel_initializer = 'he_normal')(conv1)
