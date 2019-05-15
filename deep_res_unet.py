@@ -21,8 +21,7 @@ def deep_res_unet(pretrained_weights = None,input_size = (512,512,1), n_features
 
     conv2 = BatchNormalization()(plus1)
     conv2 = ReLU()(conv2)
-    conv2 = MaxPooling2D(pool_size=(2, 2))(conv2)
-    conv2 = Conv2D(2*n_features, 3, padding = 'same', kernel_initializer = 'he_normal')(conv2)
+    conv2 = Conv2D(2*n_features, 3, strides=(2, 2), padding = 'same', kernel_initializer = 'he_normal')(conv2)
     conv2 = BatchNormalization()(conv2)
     conv2 = ReLU()(conv2)
     conv2 = Conv2D(2*n_features, 3, padding = 'same', kernel_initializer = 'he_normal')(conv2)
@@ -32,8 +31,7 @@ def deep_res_unet(pretrained_weights = None,input_size = (512,512,1), n_features
 
     conv3 = BatchNormalization()(plus2)
     conv3 = ReLU()(conv3)
-    conv3 = MaxPooling2D(pool_size=(2, 2))(conv3)
-    conv3 = Conv2D(4*n_features, 3, padding = 'same', kernel_initializer = 'he_normal')(conv3)
+    conv3 = Conv2D(4*n_features, 3, strides=(2, 2), padding = 'same', kernel_initializer = 'he_normal')(conv3)
     conv3 = BatchNormalization()(conv3)
     conv3 = ReLU()(conv3)
     conv3 = Conv2D(4*n_features, 3, padding = 'same', kernel_initializer = 'he_normal')(conv3)
@@ -43,8 +41,7 @@ def deep_res_unet(pretrained_weights = None,input_size = (512,512,1), n_features
 
     conv4 = BatchNormalization()(plus3)
     conv4 = ReLU()(conv4)
-    conv4 = MaxPooling2D(pool_size=(2, 2))(conv4)
-    conv4 = Conv2D(8*n_features, 3, padding = 'same', kernel_initializer = 'he_normal')(conv4)
+    conv4 = Conv2D(8*n_features, 3, strides=(2, 2), padding = 'same', kernel_initializer = 'he_normal')(conv4)
     conv4 = BatchNormalization()(conv4)
     conv4 = ReLU()(conv4)
     conv4 = Conv2D(8*n_features, 3, padding = 'same', kernel_initializer = 'he_normal')(conv4)
@@ -89,14 +86,14 @@ def deep_res_unet(pretrained_weights = None,input_size = (512,512,1), n_features
     plus10 = add([shortcut, conv10])
 
 
-    conv14 = Conv2D(2, 3, padding = 'same', kernel_initializer = 'he_normal')(plus10)
-    conv14 = ReLU()(conv14)
-    conv14 = Conv2D(1, 1, activation = 'sigmoid')(conv14)
+    # conv14 = Conv2D(2, 3, padding = 'same', kernel_initializer = 'he_normal')(plus13)
+    # conv14 = ReLU()(conv14)
+    conv14 = Conv2D(1, 1, activation = 'sigmoid')(plus10)
 
     model = Model(input = inputs, output = conv14)
     # plot_model(model, to_file='model_plot.png', show_shapes=True, show_layer_names=True)
 
-    model.compile(optimizer = Adam(lr = 1e-5, decay = 1e-7), loss = 'binary_crossentropy', metrics = ['accuracy'])
+    model.compile(optimizer = SGD(lr = 1e-3, decay = 1e-5), loss = 'mean_squared_error', metrics = ['accuracy'])
 
     #model.summary()
 
